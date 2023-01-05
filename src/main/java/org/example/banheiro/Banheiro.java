@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Banheiro {
 
     Lock lock = new ReentrantLock();
+    private boolean ehSujo = true;
 
     public void fazNumero1(){
 
@@ -19,26 +20,28 @@ public class Banheiro {
          * Usa Lock para executar o bloco sincronizadamente com possíveis outras threads. O bloco será executádo inteiramente
          * antes de iniciar a execução de outra thread para o mesmo bloco. */
 
-        try {
-            /**
-             * Thread tenta executar durante o tempo estipulado. Se passado o tempo, bloco de código não é executado. */
-            if(lock.tryLock(5, TimeUnit.SECONDS)){
-                System.out.println(nome + " entrando no banheiro");
-                System.out.println(nome + " fazendo coisa rápida");
+        /**
+         * Thread tenta executar durante o tempo estipulado. Se passado o tempo, bloco de código não é executado. */
+        synchronized (this) {
+            System.out.println(nome + " entrando no banheiro");
 
-                try {
-                    Thread.sleep(5000);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-
-                System.out.println(nome + " dando descarga");
-                System.out.println(nome + " lavando a mão");
-                System.out.println(nome + " saindo do banheiro");
-                lock.unlock();
+            /*alterando estado da thread*/
+            if(ehSujo){
+                esperaLaFora(nome);
             }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+
+            System.out.println(nome + " fazendo coisa rápida");
+
+            try {
+                Thread.sleep(5000);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            System.out.println(nome + " dando descarga");
+            System.out.println(nome + " lavando a mão");
+            System.out.println(nome + " saindo do banheiro");
+            lock.unlock();
         }
     }
 
@@ -47,24 +50,37 @@ public class Banheiro {
 
         System.out.println(nome + " batendo na porta");
 
-        try {
-            if(lock.tryLock(20, TimeUnit.SECONDS)){
-                System.out.println(nome + " entrando no banheiro");
-                System.out.println(nome + " fazendo coisa demorada");
+        synchronized (this) {
+            System.out.println(nome + " entrando no banheiro");
 
-                try {
-                    Thread.sleep(10000);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-
-                System.out.println(nome + " dando descarga");
-                System.out.println(nome + " lavando a mão");
-                System.out.println(nome + " saindo do banheiro");
-                lock.unlock();
+            if(ehSujo){
+                esperaLaFora(nome);
             }
+
+            System.out.println(nome + " fazendo coisa demorada");
+
+            try {
+                Thread.sleep(10000);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            System.out.println(nome + " dando descarga");
+            System.out.println(nome + " lavando a mão");
+            System.out.println(nome + " saindo do banheiro");
+            lock.unlock();
+        }
+    }
+
+    /**
+     * Com wait, a thread do objeto entra em estado de espera, saindo do bloco de execução.
+     * */
+    private void esperaLaFora(String name) {
+        try {
+            System.out.println(name + " eca! Vou esperar limpar!");
+            this.wait();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 }
