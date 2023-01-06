@@ -26,17 +26,15 @@ public class Banheiro {
             System.out.println(nome + " entrando no banheiro");
 
             /*alterando estado da thread*/
-            if(ehSujo){
+            while (ehSujo){
                 esperaLaFora(nome);
             }
 
             System.out.println(nome + " fazendo coisa rápida");
 
-            try {
-                Thread.sleep(5000);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            esperaUmPouco(5000);
+
+            this.ehSujo = true;
 
             System.out.println(nome + " dando descarga");
             System.out.println(nome + " lavando a mão");
@@ -52,21 +50,27 @@ public class Banheiro {
         synchronized (this) {
             System.out.println(nome + " entrando no banheiro");
 
-            if(ehSujo){
+            while (ehSujo){
                 esperaLaFora(nome);
             }
 
             System.out.println(nome + " fazendo coisa demorada");
 
-            try {
-                Thread.sleep(10000);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            esperaUmPouco(10000);
+
+            this.ehSujo = true;
 
             System.out.println(nome + " dando descarga");
             System.out.println(nome + " lavando a mão");
             System.out.println(nome + " saindo do banheiro");
+        }
+    }
+
+    private void esperaUmPouco(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
